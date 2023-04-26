@@ -8,6 +8,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,9 +57,14 @@ public class SpaceInvaders extends Application
         }
     }
 
+
+
     private List<Sprite> sprites()
     {
-        return racine.getChildren().stream().map(n -> (Sprite)n).collect(Collectors.toList());
+        return racine.getChildren().stream()
+                .filter(n -> n instanceof Sprite)
+                .map(n -> (Sprite) n)
+                .collect(Collectors.toList());
     }
 
     private void miseAJour()
@@ -68,7 +75,6 @@ public class SpaceInvaders extends Application
         {
             switch (s.type)
             {
-
                 case "ennemiTir":
                     s.versLeBas();
 
@@ -107,16 +113,42 @@ public class SpaceInvaders extends Application
             }
         });
 
-        racine.getChildren().removeIf(n ->
-        {
-            Sprite s = (Sprite) n;
-            return s.mort;
-        });
+        racine.getChildren().removeIf(n -> n instanceof Sprite && ((Sprite) n).mort);
+
 
         if (temps > 2)
         {
             temps = 0;
         }
+
+        if (toutLesEnnemisDetruits())
+        {
+            displayVictoryMessage();
+        }
+
+        if (Joueur.mort)
+        {
+            displayDefeatMessage();
+        }
+    }
+
+    private void displayVictoryMessage()
+    {
+        Text victoryMessage = new Text("VOUS AVEZ GAGNÉ !");
+        victoryMessage.setFont(Font.font("Verdana", 50));
+        victoryMessage.setFill(Color.GREEN);
+        victoryMessage.setX(racine.getPrefWidth() / 2 - victoryMessage.getLayoutBounds().getWidth() / 2);
+        victoryMessage.setY(racine.getPrefHeight() / 2);
+        racine.getChildren().add(victoryMessage);
+    }
+
+    private void displayDefeatMessage() {
+        Text defeatMessage = new Text("VOUS AVEZ PERDU !");
+        defeatMessage.setFont(Font.font("Verdana", 50));
+        defeatMessage.setFill(Color.RED);
+        defeatMessage.setX(racine.getPrefWidth() / 2 - defeatMessage.getLayoutBounds().getWidth() / 2);
+        defeatMessage.setY(racine.getPrefHeight() / 2);
+        racine.getChildren().add(defeatMessage);
     }
 
     private void tir(Sprite qui)
@@ -149,6 +181,11 @@ public class SpaceInvaders extends Application
 
         stage.setScene(scene);
         stage.show();
+    }
+
+    private boolean toutLesEnnemisDetruits()
+    {
+        return sprites().stream().noneMatch(s -> s.type.equals("ennemi"));
     }
 
     private static class Sprite extends Rectangle
