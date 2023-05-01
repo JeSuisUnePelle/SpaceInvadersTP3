@@ -17,6 +17,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 
 
 
@@ -29,10 +32,6 @@ import java.io.IOException;
 public class SpaceInvaders extends Application
 {
     private Pane racine = new Pane();
-    private boolean jeuCommence = false;
-
-    private Pane jeuRacine;
-    private Stage primaryStage;
 
     private double temps = 0;
 
@@ -40,10 +39,9 @@ public class SpaceInvaders extends Application
 
     private Parent creationDeContenu()
     {
-        jeuRacine = new Pane();
-        jeuRacine.setPrefSize(1000, 1000);
+        racine.setPrefSize(1000, 1000);
 
-        jeuRacine.getChildren().add(Joueur);
+        racine.getChildren().add(Joueur);
 
         // Va rendre les animation plus fluide
         AnimationTimer minuteur = new AnimationTimer()
@@ -57,87 +55,26 @@ public class SpaceInvaders extends Application
 
         minuteur.start();
 
-        return jeuRacine;
-    }
+        prochainNiveau();
 
-    private Parent createMenu() {
-        VBox menu = new VBox(10);
-        menu.setPrefSize(1000, 1000);
-        menu.setAlignment(Pos.CENTER);
-
-        Button startButton = new Button("Commencer la partie");
-        startButton.setOnAction(e ->
-        {
-            redemarrerJeu();
-            Scene scene = new Scene(jeuRacine);
-            scene.setOnKeyPressed(keyEvent -> {
-                switch (keyEvent.getCode()) {
-                    case A:
-                        Joueur.versLaGauche();
-                        break;
-                    case D:
-                        Joueur.versLaDroite();
-                        break;
-                    case SPACE:
-                        tir(Joueur);
-                        break;
-                    case R:
-                        redemarrerJeu();
-                        break;
-                }
-            });
-            primaryStage.setScene(scene);
-            primaryStage.show();
-        });
-
-
-        Button quitButton = new Button("Quitter");
-        quitButton.setOnAction(e -> {
-            primaryStage.close();
-        });
-
-        menu.getChildren().addAll(startButton, quitButton);
-
-        Pane menuPane = new Pane(menu);
-        menuPane.setPrefSize(1000, 1000);
-        return menuPane;
-    }
-
-
-    private Button createRestartButton()
-    {
-        Button restartButton = new Button("Recommencer");
-        restartButton.setOnAction(new EventHandler<ActionEvent>()
-        {
-            @Override
-            public void handle(ActionEvent event)
-            {
-                racine.getChildren().clear();
-                racine.getChildren().add(Joueur);
-                Joueur.mort = false;
-                prochainNiveau();
-            }
-        });
-
-        return restartButton;
+        return racine;
     }
 
     private void prochainNiveau()
     {
         for (int i = 0; i < 5; i++)
         {
-            Sprite s = new Sprite(90 + i * 100, 150, 30, 30, "ennemi", Color.RED);
-            jeuRacine.getChildren().add(s);
+            Sprite s = new Sprite(90 + i*100, 150, 30, 30, "ennemi", Color.RED);
+
+            racine.getChildren().add(s);
         }
     }
 
 
 
-
-
     private List<Sprite> sprites()
     {
-        return jeuRacine.getChildren().stream()
+        return racine.getChildren().stream()
                 .filter(n -> n instanceof Sprite)
                 .map(n -> (Sprite) n)
                 .collect(Collectors.toList());
@@ -191,16 +128,16 @@ public class SpaceInvaders extends Application
 
         racine.getChildren().removeIf(n -> n instanceof Sprite && ((Sprite) n).mort);
 
-        if (jeuCommence && toutLesEnnemisDetruits()) {
-            displayVictoryMessage();
-        }
 
         if (temps > 2)
         {
             temps = 0;
         }
 
-
+        if (toutLesEnnemisDetruits())
+        {
+            displayVictoryMessage();
+        }
 
         if (Joueur.mort)
         {
@@ -218,12 +155,12 @@ public class SpaceInvaders extends Application
         vbox.setAlignment(Pos.CENTER);
 
         Pane messagePane = new Pane();
-        messagePane.setPrefSize(jeuRacine.getPrefWidth(), jeuRacine.getPrefHeight());
+        messagePane.setPrefSize(racine.getPrefWidth(), racine.getPrefHeight());
         messagePane.getChildren().add(vbox);
-        vbox.setLayoutX(jeuRacine.getPrefWidth() / 2 - vbox.getPrefWidth() / 2);
-        vbox.setLayoutY(jeuRacine.getPrefHeight() / 2 - vbox.getPrefHeight() / 2);
+        vbox.setLayoutX(racine.getPrefWidth() / 2 - vbox.getPrefWidth() / 2);
+        vbox.setLayoutY(racine.getPrefHeight() / 2 - vbox.getPrefHeight() / 2);
 
-        jeuRacine.getChildren().add(messagePane);
+        racine.getChildren().add(messagePane);
     }
 
     private void displayDefeatMessage()
@@ -236,55 +173,57 @@ public class SpaceInvaders extends Application
         vbox.setAlignment(Pos.CENTER);
 
         Pane messagePane = new Pane();
-        messagePane.setPrefSize(jeuRacine.getPrefWidth(), jeuRacine.getPrefHeight());
+        messagePane.setPrefSize(racine.getPrefWidth(), racine.getPrefHeight());
         messagePane.getChildren().add(vbox);
-        vbox.setLayoutX(jeuRacine.getPrefWidth() / 2 - vbox.getPrefWidth() / 2);
-        vbox.setLayoutY(jeuRacine.getPrefHeight() / 2 - vbox.getPrefHeight() / 2);
+        vbox.setLayoutX(racine.getPrefWidth() / 2 - vbox.getPrefWidth() / 2);
+        vbox.setLayoutY(racine.getPrefHeight() / 2 - vbox.getPrefHeight() / 2);
 
-        jeuRacine.getChildren().add(messagePane);
+        racine.getChildren().add(messagePane);
     }
-
 
     private void redemarrerJeu() {
-        jeuRacine.getChildren().clear();
+        racine.getChildren().clear();
         Joueur = new Sprite(300, 750, 40, 40, "Joueur", Color.BLUE);
-        jeuRacine.getChildren().add(Joueur);
+        racine.getChildren().add(Joueur);
         prochainNiveau();
-        jeuCommence = true; // Cette ligne est déjà présente
     }
-
-
 
 
     private void tir(Sprite qui)
     {
-        int offsetX = 20;
-        int offsetY = 20;
+        Sprite s = new Sprite((int) qui.getTranslateX() + 20, (int) qui.getTranslateY(), 5, 20, qui.type + "Tir", Color.PURPLE);
 
-        if (qui.type.equals("ennemi")) {
-            offsetY = -offsetY;
-        }
-
-        Sprite s = new Sprite((int) qui.getTranslateX() + offsetX, (int) qui.getTranslateY() + offsetY, 5, 20, qui.type + "Tir", Color.PURPLE);
-
-        jeuRacine.getChildren().add(s);
+        racine.getChildren().add(s);
     }
-
-
 
     @Override
     public void start(Stage stage) throws Exception
     {
-        this.primaryStage = stage;
+        Scene scene = new Scene(creationDeContenu());
 
-        Scene menuScene = new Scene(createMenu());
-        primaryStage.setScene(menuScene);
-        primaryStage.show();
+        scene.setOnKeyPressed(e ->
+        {
+            switch (e.getCode())
+            {
+                case A:
+                    Joueur.versLaGauche();
+                    break;
+                case D:
+                    Joueur.versLaDroite();
+                    break;
+                case SPACE:
+                    tir(Joueur);
+                    break;
+                case R:
+                    redemarrerJeu();
+                    break;
+            }
+        });
 
-        jeuRacine = (Pane) creationDeContenu();
+
+        stage.setScene(scene);
+        stage.show();
     }
-
-
 
     private boolean toutLesEnnemisDetruits()
     {
