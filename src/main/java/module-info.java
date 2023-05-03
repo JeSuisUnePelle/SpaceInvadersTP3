@@ -10,6 +10,7 @@ module com.example.spaceinvaderstp3 {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires javafx.media;
 
     opens com.example.spaceinvaderstp3 to javafx.fxml;
     exports com.example.spaceinvaderstp3;
