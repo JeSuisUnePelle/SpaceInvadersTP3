@@ -27,6 +27,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * La classe qui fait fonctionner le jeu au complet
+ */
 public class SpaceInvaders extends Application
 {
     private double tempsDeRedemarrage;
@@ -40,65 +43,108 @@ public class SpaceInvaders extends Application
 
     private Sprite Joueur = new Sprite(300, 750, 40, 40, "Joueur", Color.BLUE);
 
+    /**
+     * Configure l'interface utilisateur et d'initialise le jeu
+     * @return Retourne le Pane
+     */
     private Parent creationDeContenu()
     {
+        // Appelle la méthode setPrefSize sur l'objet racine et définit sa largeur et sa hauteur préférées à 1000 x 1000 pixels.
         racine.setPrefSize(1000, 1000);
 
+        // Met l'arriere plan en noir
         racine.setStyle("-fx-background-color: black;");
 
+        // Ajoute l'objet Joueur à la liste des enfants de l'objet racine.
         racine.getChildren().add(Joueur);
 
-        // Va rendre les animation plus fluide
+        // Va rendre les animation plus fluide en founissant un timer pour les animations
         AnimationTimer minuteur = new AnimationTimer()
         {
+            /**
+             * Appel la méthode miseAJour pour mettre à jour l'état du jeu
+             * @param maintenant contient l'état actuel du jeu
+             */
             @Override
             public void handle(long maintenant)
             {
+                // Appel la méthode miseAJour
                 miseAJour();
             }
         };
 
+        // Démarre le timer d'animation en appelant la méthode start sur l'objet minuteur.
         minuteur.start();
 
+        // Cette ligne appelle la méthode prochainNiveau pour charger le niveau suivant.
         prochainNiveau();
 
+        // Retourne le Pane
         return racine;
     }
 
+    /**
+     *
+     * @param ennemi
+     */
     private void explosion(Sprite ennemi)
     {
+        // Récupère l'URL de la ressource "Explosion.gif" et la stocke dans la variable explosionUrl.
         URL explosionUrl = getClass().getResource("/Explosion.gif");
+        // Crée un nouvel objet Image à partir de l'URL de l'explosion en convertissant l'URL en chaîne de caractères.
         Image explosionImage = new Image(explosionUrl.toString());
+        // Crée un nouvel objet Sprite appelé explosion avec les mêmes coordonnées x et y, largeur et hauteur que l'objet ennemi
         Sprite explosion = new Sprite((int) ennemi.getTranslateX(), (int) ennemi.getTranslateY(), (int) ennemi.rectangle.getWidth(), (int) ennemi.rectangle.getHeight(), "explosion", explosionImage);
-        explosion.imageView.setTranslateX(0); // Ajouter cette ligne pour corriger le positionnement de l'image
-        explosion.imageView.setTranslateY(0); // Ajouter cette ligne pour corriger le positionnement de l'image
+        // Corrigent le positionnement de l'image d'explosion en réinitialisant les translations x et y à 0.
+        explosion.imageView.setTranslateX(0);
+        explosion.imageView.setTranslateY(0);
+        // Ajoute l'objet Sprite explosion à la liste des enfants de l'objet racine, pour qu'il soit affiché à l'écran.
         racine.getChildren().add(explosion);
-
+        // Crée un nouvel objet Timeline qui exécutera une action après un certain temps  et supprime l'objet explosion de la liste des enfants de racine.
         Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), event -> racine.getChildren().remove(explosion)));
+        // Supprime l'objet explosion de la liste des enfants de racine.
         timeline.play();
     }
 
+    /**
+     *
+     * @param joueur
+     */
     private void explosionJoueur(Sprite joueur)
     {
-        if (!explosionAffichee) {
+        // Vérifie si le gif de l'explosion n'a pas ete afficher
+        if (!explosionAffichee)
+        {
+            // Récupère l'URL de la ressource "ExplosionJoueur.gif" et la stocke dans la variable explosionJoueurUrl.
             URL explosionJoueurUrl = getClass().getResource("/ExplosionJoueur.gif");
+            // Crée un nouvel objet Image à partir de l'URL de l'explosion en convertissant l'URL en chaîne de caractères.
             Image explosionJoueurImage = new Image(explosionJoueurUrl.toString());
+            // Crée un nouvel objet Sprite appelé explosion avec les mêmes coordonnées x et y, largeur et hauteur que l'objet joueur
             Sprite explosion = new Sprite((int) joueur.getTranslateX(), (int) joueur.getTranslateY(), (int) joueur.rectangle.getWidth(), (int) joueur.rectangle.getHeight(), "explosion", explosionJoueurImage);
-            explosion.imageView.setTranslateX(0); // Ajouter cette ligne pour corriger le positionnement de l'image
-            explosion.imageView.setTranslateY(0); // Ajouter cette ligne pour corriger le positionnement de l'image
+            // Corrigent le positionnement de l'image d'explosion en réinitialisant les translations x et y à 0.
+            explosion.imageView.setTranslateX(0);
+            explosion.imageView.setTranslateY(0);
+            // Ajoute l'objet Sprite explosionJoueur à la liste des enfants de l'objet racine, pour qu'il soit affiché à l'écran.
             racine.getChildren().add(explosion);
-
+            // Crée un nouvel objet Timeline qui exécutera une action après un certain temps et supprime l'objet explosion de la liste des enfants de racine.
             Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), event -> racine.getChildren().remove(explosion)));
+            // Supprime l'objet explosion de la liste des enfants de racine.
             timeline.play();
 
+            // L'explosion a déjà ete fait donc il ne le refera plus
             explosionAffichee = true;
         }
     }
 
 
-    public SpaceInvaders() //***********************************************************************************sert a charger fichier audio et creer mediaPLayer mais il faut changer le nom "SpaceInvaders()"
+    /**
+     *
+     */
+    public SpaceInvaders() // sert a charger fichier audio et creer mediaPLayer mais il faut changer le nom "SpaceInvaders()"
     {
+        // Cette ligne récupère l'URL de la ressource "tirLaserJoueur.mp3" et la stocke dans la variable audioUrl.
         URL audioUrl = getClass().getResource("/tirLaserJoueur.mp3");
+
         Media audioMedia = new Media(audioUrl.toString());
         mediaPlayer = new MediaPlayer(audioMedia);
 
@@ -108,15 +154,19 @@ public class SpaceInvaders extends Application
     }
 
 
-
-
-
+    /**
+     * Cette méthode est responsable de créer et d'ajouter des ennemis au niveau.
+     * Elle crée 5 ennemis de couleur rouge, les positionne horizontalement à une certaine distance les uns des autres et les affiches à l'écran.
+     */
     private void prochainNiveau()
     {
+        // Déclare une boucle "for" qui s'exécute 5 fois pour placer 5 ennemis
         for (int i = 0; i < 5; i++)
         {
+            // Crée un nouvel objet Sprite appelé 's' avec les coordonnées x et y avec une distance entre chaque "ennemi" et les mets en rouge
             Sprite s = new Sprite(90 + i*100, 150, 30, 30, "ennemi", Color.RED);
 
+            // Ajoute l'objet Sprite 's' à la liste des enfants de l'objet racine. Donc, les ennemis seront affichés sur l'objet racine.
             racine.getChildren().add(s);
         }
     }
@@ -131,44 +181,68 @@ public class SpaceInvaders extends Application
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Cette méthode est responsable de mettre à jour l'état du jeu. Donc, les deplacements des tirs,
+     * marquer les objets comme mort s'ils ont été touchés, Vérifie si le joueur est "mort". Si oui, déclenche une explosion du joueur, etc.
+     */
     private void miseAJour()
     {
+        // Augmente la valeur de la variable temps de 0.016.
         temps += 0.016;
+        // Augmente la valeur de la variable tempsDeRedemarrage de 0.016.
         tempsDeRedemarrage += 0.016;
 
+        // Appelle la méthode sprites() et exécute une action pour chaque élément (s) de la liste retournée par cette méthode.
         sprites().forEach(s ->
         {
+            // Commence une instruction switch basée sur le type de l'objet 's'.
             switch (s.type)
             {
+                // Si le type de l'objet 's' est "ennemiTir", le code suivant sera exécuté.
                 case "ennemiTir":
+                    // Appelle la méthode versLeBas sur l'objet 's'.
                     s.versLeBas();
 
+                    //  vérifie si les limites de l'objet 's' et de l'objet Joueur se croisent.
                     if (s.getBoundsInParent().intersects(Joueur.getBoundsInParent()))
                     {
+                        // Définit les attributs mort des objets Joueur et 's' sur true.
                         Joueur.mort = true;
                         s.mort = true;
                     }
                     break;
 
+                    // Si le type de l'objet 's' est "JoueurTir", le code suivant sera exécuté.
                 case "JoueurTir":
+                    // Appelle la méthode "versLeHaut" sur l'objet 's'.
                     s.versLeHaut();
 
+                    // Appelle la méthode "sprites()" et crée un flux des éléments "ennemi". Ensuite, elle exécute une action pour chaque élément (ennemi).
                     sprites().stream().filter(e -> e.type.equals("ennemi")).forEach(ennemi ->
                     {
+                        // Cette ligne vérifie si les limites de l'objet 's' et de l'objet ennemi se croisent.
                         if (s.getBoundsInParent().intersects(ennemi.getBoundsInParent()))
                         {
+                            // Cette partie du code définira les attributs mort des objets ennemi et 's' en "true"
                             ennemi.mort = true;
                             s.mort = true;
+                            //  Appellera la méthode explosion pour faireexploser l'objet ennemi comme argument.
                             explosion(ennemi);
                         }
                     });
 
                     break;
 
+                // Si le type de l'objet 's' est "ennemi", le code suivant sera exécuté.
                 case "ennemi":
 
-                    if (tempsDeRedemarrage > 2 && temps > 2) {
-                        if (Math.random() < 0.3) {
+                    // Attend 2 secondes apres le demarrage d'une partie avant de tirer
+                    if (tempsDeRedemarrage > 2 && temps > 2)
+                    {
+                        // Les ennemis vont tirer au hazard
+                        if (Math.random() < 0.3)
+                        {
+                            // Appel la fonction tir pour faire tirer les ennemis
                             tir(s);
                         }
                     }
@@ -176,27 +250,37 @@ public class SpaceInvaders extends Application
             }
         });
 
+        // Supprime tous les objets Sprite marqués comme "mort" de la liste des enfants de l'objet racine.
         racine.getChildren().removeIf(n -> n instanceof Sprite && ((Sprite) n).mort);
 
 
+        // Si la valeur de la variable temps est supérieure à 2, ça réinitialise temps à 0
         if (temps > 2)
         {
             temps = 0;
         }
 
+        // Vérifie si tous les ennemis sont détruits en appelant la méthode "toutLesEnnemisDetruits()". Ensuite, appel la méthode "displayVictoryMessage()".
         if (toutLesEnnemisDetruits())
         {
             displayVictoryMessage();
         }
 
+        // Si l'attribut mort du joueur est true, une explosion est déclenchée pour le joueur
         if (Joueur.mort)
         {
+            // Appelle la méthode "explosionJoueur(Joueur)" pour faire exploser le joueur
             explosionJoueur(Joueur);
+            // Supprime le joueur de la liste des enfants de racine
             racine.getChildren().remove(Joueur);
+            // Affiche Le message de défaite
             displayDefeatMessage();
         }
     }
 
+    /**
+     *
+     */
     private void displayVictoryMessage()
     {
         Text victoryMessage = new Text("VOUS AVEZ GAGNÉ !");
